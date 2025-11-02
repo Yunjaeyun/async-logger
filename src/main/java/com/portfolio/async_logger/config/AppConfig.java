@@ -1,5 +1,6 @@
 package com.portfolio.async_logger.config;
 
+import com.portfolio.async_logger.dto.LogDataDto;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
