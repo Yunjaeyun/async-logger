@@ -5,18 +5,17 @@ import com.portfolio.async_logger.domain.LogRepository;
 import com.portfolio.async_logger.dto.LogDataDto;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.BlockingQueue;
 
 /***
  * V2의 워커스레드 (주방 요리사역할)
  */
-
-@Component
+@Slf4j
+//@Component
 @RequiredArgsConstructor
-public class LogConsumer {
+public class LogConsumerV2 {
 
     private final LogRepository logRepository;
     private final BlockingQueue<LogDataDto> logQueue;
@@ -34,8 +33,16 @@ public class LogConsumer {
                             logDto.getCreatedAt()
                     );
 
+                    // ==  스톱워치 측정 시작 (1개당 걸리는 ms)==
+                    long startTime= System.nanoTime();
+
                     logRepository.save(logEntity);
 
+                    long endTime=System.nanoTime();
+                    long durationMs = (endTime - startTime)/ 1000000;
+
+                    log.info("Consumer save() 1 log took: {} ms", durationMs);
+                    // == 끝 ==
 
 
 

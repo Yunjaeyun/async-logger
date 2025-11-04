@@ -34,4 +34,17 @@ public class LogController {
         return ResponseEntity.ok("V2 page Loaded Instantly!");
     }
 
+    @GetMapping("visit/v2/monitor")
+    public ResponseEntity<String> monitorQueue(){
+        int currentQueueSize= logQueue.size();
+        return ResponseEntity.ok("Current Queue Size: "+currentQueueSize );
+    }
+
+    @GetMapping("visit/v3")
+    public ResponseEntity<String> visitV3(){
+        return visitV2();
+    }
+
+
+
 }
