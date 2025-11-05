@@ -37,7 +37,9 @@
 
 
 -   **분석:** TPS 24, **Error 80.5%**. "카운터(톰캣 스레드)"가 "느린" DB 작업(save)을 "동기"로 기다리면서, "커넥션 풀"과 "스레드 풀"이 "전부" 고갈되어 INSERT와 무관한 **SELECT API까지 마비**되는 "연쇄 붕괴" 발생.
-<img width="1167" height="563" alt="image" src="https://github.com/user-attachments/assets/f197bcfd-23dc-4aa3-b622-461c7805109c" />
+<img width="2559" height="1439" alt="v1 병목증거(db스레드풀 고갈)스크린샷 2025-11-04 175637 (2)" src="https://github.com/user-attachments/assets/add55f5b-c084-41be-bbb0-519e44a7e044" style="width:50%; max-width:600px; display:block;" alt="image" />
+
+
 
 
 <details>
@@ -90,10 +92,13 @@ V1의 "동기" 방식이 이 "핫스팟" 문제를 "증폭"시킨다고 판단, 
 <summary><b>[V2 딥다이브] "GC Hell"이 "Error 2.0%"를 유발한 원리</b></summary>
 <br>
 <blockquote>
-1.  **큐 폭증:** "요리사(142 TPS)"가 너무 느려 "큐(RAM)"에 DTO 객체 7만 개가 쌓임.
+  
+1.  **큐 폭증:** "요리사(142 TPS)"가 너무 느려 "큐(RAM)"에 `DTO` 객체 7만 개가 쌓임.
 2.  **Stop-the-World:** "JVM"이 "RAM"이 터질까 봐 **"모두 멈춰!(Stop-the-World)"**를 외치고 "0.3초"간 "대청소(Full GC)" 시작.
 3.  **Timeout 발생:** "GC"가 터진 "0.3초" 동안 "카운터(톰캣 스레드)"도 **"얼음"**이 됨.
-4.  **결과:** "손님(nGrinder)"이 "0.1초"간 응답이 없자 "전화를 끊어버림(Timeout)". 이것이 Error 2.0%의 "진짜" 원인.
+4.  **결과:** "손님(nGrinder)"이 "0.1초"간 응답이 없자 "전화를 끊어버림(Timeout)". 이것이 `Error 2.0%`의 "진짜" 원인.
+
+   
 </blockquote>
 </details>
 
