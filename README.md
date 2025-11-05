@@ -21,7 +21,7 @@
 
 ### 1️⃣ V1: 동기 처리 (즉사) - 문제 정의
 
--   **nGrinder (VUser 500):** `[V1의 "즉사" nGrinder 그래프 이미지]`
+-   **nGrinder (VUser 500):** `[V1의 "즉사" ]`
   <img width="1592" height="61" alt="image" src="https://github.com/user-attachments/assets/a84ba1df-7dfa-4196-bd07-7102042042a6" />
   <img width="1595" height="51" alt="image" src="https://github.com/user-attachments/assets/85efdd5d-7881-499f-afc1-01703ff472ae" />
 
@@ -37,8 +37,8 @@ V1의 "연쇄 붕괴"는 "DB 커넥션 풀" 고갈이 "현상"일 뿐, "근본 �
 
 1.  **핫스팟 발생:** INSERT가 DB 인덱스(B-Tree)의 마지막 리프 노드 페이지("1번 화구")에 몰림.
 2.  **락 점유:** "스레드 1"이 "1번 화구"(Lock)를 잡고 DB 작업을 시작.
-3.  **커넥션 고갈:** "스레드 2~50"은 락이 풀리길 기다리며 DB 커넥션을 쥔 채 대기.
-4.  **커넥션 풀 소진:** "DB 커넥션 풀"은 0/50 상태로 고갈.
+3.  **커넥션 고갈:** 나머지 스레드은 락이 풀리길 기다리며 DB 커넥션을 쥔 채 대기.
+4.  **커넥션 풀 소진:** "DB 커넥션 풀"은 0/10 상태로 고갈.
 
 <img width="800" height="400" alt="image" src="https://github.com/user-attachments/assets/89aad612-7812-4c6c-ab37-1f84a6bc09e7" />
 
@@ -52,7 +52,11 @@ V1의 "동기" 방식이 이 "핫스팟" 문제를 "증폭"시킨다고 판단, 
 
 ### 2️⃣ V2: 비동기 (Queue) - 1차 해결 (그러나 "새로운" 병목)
 
--   **nGrinder (VUser 500):** `[V2의 "Error 2.0%" nGrinder 그래프 이미지]`
+-   **nGrinder (VUser 500):** `[V2의 "Error 2.0%"]`
+   <img width="1592" height="61" alt="image" src="https://github.com/user-attachments/assets/a84ba1df-7dfa-4196-bd07-7102042042a6" />
+   <img width="1597" height="45" alt="image" src="https://github.com/user-attachments/assets/5009233f-4e6e-4e9c-bb2f-5e9856848834" />
+
+   
 -   **분석:** TPS 1,261, **Error 2.0%**. "비동기(Queue)"로 "서버 즉사(V1)"는 막았지만, "Error 2.0%" (Client-Side Timeout)가 발생.
 -   **원인:** "요리사(소비자, 142 TPS)"가 "카운터(생산자, 1261 TPS)"보다 "압도적으로" 느려서, "큐(RAM)"가 7만 개씩 쌓이며 **"GC Hell (Stop-the-World)"** 발생.
 
@@ -71,7 +75,11 @@ V1의 "동기" 방식이 이 "핫스팟" 문제를 "증폭"시킨다고 판단, 
 
 ### 3️⃣ V3: Queue + Batch - "진짜 범인"을 찾아서
 
--   **nGrinder (VUser 500):** `[V3의 "Error 0.9%" nGrinder 그래프 이미지]`
+-   **nGrinder (VUser 500):** `[V3의 "Error 0.9%"]
+    <img width="1592" height="61" alt="image" src="https://github.com/user-attachments/assets/a84ba1df-7dfa-4196-bd07-7102042042a6" />
+    <img width="1598" height="59" alt="image" src="https://github.com/user-attachments/assets/1217dad2-1712-43b5-9c2b-bc74e2f98742" />
+
+    
 -   **분석:** TPS 1,573, **Error 0.9%**. V2(142 TPS) ➔ V3(4000+ TPS)로 "요리사"는 "압도적으로" 빨라졌음. **"그런데도"** Error 0.9%와 "250ms 멈춤 로그"가 "가끔" 발생.
 
 <details>
