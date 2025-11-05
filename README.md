@@ -2,53 +2,7 @@
 
 (nGrinder VUser 500명, 1분간)
 
-"RDB(MySQL)"를 사용하는 레거시 시스템이 초당 수천 건의 INSERT 요청으로 인해 "즉사(V1)"하는 문제를 V4까지 **"데이터"**에 기반하여 점진적으로 튜닝하고 **"해결"**한 프로젝트입니다.
-
-## 📊 최종 튜닝 결과 (V1 vs V4)
-
-| 버전 | 아키텍처 |    TPS (처리량) | Error Rate | 비고 |
-| :--- | :--- | :--- | :--- | :--- |
-| **V1** | 동기 + `save()` | 24.1 | 80.5% | "서버 즉사" |
-| **V2** | 비동기 + Queue | 100+ | 2.0% | "GC Hell" (큐 폭증) |
-| **V3** | Queue + Batch | 1,000+ | 0.9% | "GC Hell" (가끔 멈춤) |
-| **V4** | **V3 + GC 튜닝 (String)** | **5,000+** | **0.0%** | **"최종 해결"** |
-
-<br>
-
-## 🚗 튜닝 여정 (The Journey: V1 ➔ V4)
-
-"Error 80.5%"에서 "Error 0.0%"에 도달하기까지, "새로운" 병목을 "데이터"로 발견하고 "가설"을 검증하며 해결한 "전체 과정"입니다.
-
-### 1️⃣ V1: 동기 처리 (즉사) - 문제 정의
-
--   **nGrinder (VUser 500):** `[V1의 "즉사" ]`
-
-  <img width="1592" height="61" alt="image" src="https://github.com/user-attachments/assets/a84ba1df-7dfa-4196-bd07-7102042042a6" />
-  <img width="1595" height="51" alt="image" src="https://github.com/user-attachments/assets/85efdd5d-7881-499f-afc1-01703ff472ae" />
-  <img width="740" height="1024" alt="image" src="https://github.com/user-attachments/assets/c1cefced-078a-4b8a-a9dc-bf1ce0536ce4" />
-
-
-
--   **분석:** TPS 24, **Error 80.5%**. "카운터(톰캣 스레드)"가 "느린" DB 작업(save)을 "동기"로 기다리면서, "커넥션 풀"과 "스레드 풀"이 "전부" 고갈되어 INSERT와 무관한 **SELECT API까지 마비**되는 "연쇄 붕괴" 발생.
-<img width="1167" height="563" alt="image" src="https://github.com/user-attachments/assets/f197bcfd-23dc-4aa3-b622-461c7805109c" />
-
-
-<details>
-<summary><b>[V1 딥다이브] "왜" INSERT가 SELECT까지 마비시켰는가? (핫스팟 분석)</b></summary>
-<br>
-<blockquote>
-V1의 "연쇄 붕괴"는 "DB 커넥션 풀" 고갈이 "현상"일 뿐, "근본 원인"은 RDB의 AUTO_INCREMENT PK가 유발하는 **"B-Tree 인덱스 핫스팟"**일 것이라 "가설"을 세웠습니다.
-
-1.  **핫스팟 발생:** INSERT가 DB 인덱스(B-Tree)의 마지막 리프 노드 페이지("1번 화구")에 몰림.
-2.  **락 점유:** "스레드 1"이 "1번 화구"(Lock)를 잡고 DB 작업을 시작.
-3.  **커넥션 고갈:** 나머지 스레드은 락이 풀리길 기다리며 DB 커넥션을 쥔 채 대기.
-4.  **커넥션 풀 소진:** "DB 커넥션 풀"은 0/10 상태로 고갈.
-
-<img width="800" height="400" alt="image" src="https://github.com/user-attachments/assets/89aad612-7812-4c6c-ab37-1f84a6bc09e7" />
-
-6.  **연쇄 붕괴:** INSERT와 무관한 **SELECT API**("샐러드 손님")가 도착했으나, 가용 커넥션이 없어 "즉시" 실패.
-
-V1의 "동기" 방식이 이 "핫스팟" 문제를 "증폭"시킨다고 판단, **"결합 분리(Decoupling)"**를 위해 V2(비동기 큐)를 도입했습니다.
+조를 "증폭"시킨다고 판단, **"결합 분리(Decoupling)"**를 위해 V2(비동기 큐)를 도입했습니다.                                                                                   
 </blockquote>
 </details>
 
@@ -126,6 +80,13 @@ V1의 "동기" 방식이 이 "핫스팟" 문제를 "증폭"시킨다고 판단, 
 ## 🧐 튜닝 여정 이후 (Trade-offs & Next Steps)
 
 V4(GC 튜닝)로 Error 0.0%와 TPS 5,000+를 달성했지만, 100% "완벽한" 시스템은 없습니다. V4가 "여전히" 안고 있는 "Trade-off"와 "다음" 병목입니다.
+
+1. Trade-off: "V1 ➔ V4로 바로 가면 안 됐나?" 실시간성을 고려.
+무조권 V3부터 시작하면 되는거 아님?
+"정답"은 없습니다. "V1 ➔ V4(String)"는 **"코드"**로 "GC"까지 튜닝한 "백엔드 개발자"의 "최적화"입니다.
+"V1 ➔ V2(큐)"에서 멈추는 것은, "GC Hell(Error 2.0%)"을 방치한 "미완성"입니다.
+"V1 ➔ V3(배치)"에서 멈추는 것은, "GC Hell(Error 0.9%)"의 "진짜" 원인을 "데이터"로 파고들지 못한 "타협"입니다.
+결론: V4는 "현실적인(RDB)" 제약 하에서 "Error 0.0%"를 달성하기 위한 "논리적인" 최종 단계였습니다.
 
 ### (1) Trade-off: "기업 상황별 의사결정"
 
