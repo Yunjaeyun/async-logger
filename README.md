@@ -43,7 +43,7 @@
 
 
 <details>
-<summary><b>[V1 딥다이브] "왜" INSERT가 SELECT까지 마비시켰는가? (핫스팟 분석)</b></summary>
+<summary><b>🔍📖👇[V1 딥다이브] "왜" INSERT가 SELECT까지 마비시켰는가? (핫스팟 분석)</b></summary>
 <br>
 <blockquote>
 V1의 "연쇄 붕괴"는 "DB 커넥션 풀" 고갈이 "현상"일 뿐, "근본 원인"은 RDB의 AUTO_INCREMENT PK가 유발하는 **"B-Tree 인덱스 핫스팟"**일 것이라 "가설"을 세웠습니다.
@@ -89,7 +89,7 @@ V1의 "동기" 방식이 이 "핫스팟" 문제를 "증폭"시킨다고 판단, 
 -   **원인:** "요리사(소비자, 142 TPS)"가 "카운터(생산자, 1261 TPS)"보다 "압도적으로" 느려서, "큐(RAM)"가 7만 개씩 쌓이며 **"GC Hell (Stop-the-World)"** 발생.
 
 <details>
-<summary><b>[V2 딥다이브] "GC Hell"이 "Error 2.0%"를 유발한 원리</b></summary>
+<summary><b>🔍📖👇[V2 딥다이브] "GC Hell"이 "Error 2.0%"를 유발한 원리</b></summary>
 <br>
 <blockquote>
   
@@ -115,7 +115,7 @@ V1의 "동기" 방식이 이 "핫스팟" 문제를 "증폭"시킨다고 판단, 
 -   **분석:** TPS 1,573, **Error 0.9%**. V2(142 TPS) ➔ V3(4000+ TPS)로 "요리사"는 "압도적으로" 빨라졌음. **"그런데도"** Error 0.9%와 "250ms 멈춤 로그"가 "가끔" 발생.
 
 <details>
-<summary><b>[V3 딥다이브] "진짜 범인" 찾기: DB 락(가설 A) vs GC Hell(가설 B)</b></summary>
+<summary><b>🔍📖👇[V3 딥다이브] "진짜 범인" 찾기: DB 락(가설 A) vs GC Hell(가설 B)</b></summary>
 <br>
 <blockquote>
 #### 가설 A (폐기): "DB 락"이 범인인가?
