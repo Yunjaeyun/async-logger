@@ -32,12 +32,12 @@
 
   <img width="1592" height="61" alt="image" src="https://github.com/user-attachments/assets/a84ba1df-7dfa-4196-bd07-7102042042a6" />
   <img width="1595" height="51" alt="image" src="https://github.com/user-attachments/assets/85efdd5d-7881-499f-afc1-01703ff472ae" />
-  <img width="740" height="1024" alt="image" src="https://github.com/user-attachments/assets/c1cefced-078a-4b8a-a9dc-bf1ce0536ce4" />
+  <img width="740" height="1024" alt="image" src="https://github.com/user-attachments/assets/c1cefced-078a-4b8a-a9dc-bf1ce0536ce4" style="width:20%; max-width:600px; display:block;" alt="image" />
 
 
 
 -   **분석:** TPS 24, **Error 80.5%**. "카운터(톰캣 스레드)"가 "느린" DB 작업(save)을 "동기"로 기다리면서, "커넥션 풀"과 "스레드 풀"이 "전부" 고갈되어 INSERT와 무관한 **SELECT API까지 마비**되는 "연쇄 붕괴" 발생.
-<img width="2559" height="1439" alt="v1 병목증거(db스레드풀 고갈)스크린샷 2025-11-04 175637 (2)" src="https://github.com/user-attachments/assets/add55f5b-c084-41be-bbb0-519e44a7e044" style="width:50%; max-width:600px; display:block;" alt="image" />
+<img width="2559" height="1439" alt="v1 병목증거(db스레드풀 고갈)스크린샷 2025-11-04 175637 (2)" src="https://github.com/user-attachments/assets/add55f5b-c084-41be-bbb0-519e44a7e044" style="width:20%; max-width:600px; display:block;" alt="image" />
 
 
 
@@ -83,7 +83,7 @@ V1의 "동기" 방식이 이 "핫스팟" 문제를 "증폭"시킨다고 판단, 
    <img width="1592" height="61" alt="image" src="https://github.com/user-attachments/assets/a84ba1df-7dfa-4196-bd07-7102042042a6" />
    <img width="1597" height="45" alt="image" src="https://github.com/user-attachments/assets/5009233f-4e6e-4e9c-bb2f-5e9856848834" />
 
-   <img width="726" height="1006" alt="image" src="https://github.com/user-attachments/assets/fd281682-daf7-40c0-9177-8052b1b4d09f" />
+   <img width="726" height="1006" alt="image" src="https://github.com/user-attachments/assets/fd281682-daf7-40c0-9177-8052b1b4d09f" style="width:20%; max-width:600px; display:block;" alt="image"/>
 
 -   **분석:** TPS 1,261, **Error 2.0%**. "비동기(Queue)"로 "서버 즉사(V1)"는 막았지만, "Error 2.0%" (Client-Side Timeout)가 발생.
 -   **원인:** "요리사(소비자, 142 TPS)"가 "카운터(생산자, 1261 TPS)"보다 "압도적으로" 느려서, "큐(RAM)"가 7만 개씩 쌓이며 **"GC Hell (Stop-the-World)"** 발생.
@@ -110,7 +110,7 @@ V1의 "동기" 방식이 이 "핫스팟" 문제를 "증폭"시킨다고 판단, 
     <img width="1592" height="61" alt="image" src="https://github.com/user-attachments/assets/a84ba1df-7dfa-4196-bd07-7102042042a6" />
     <img width="1598" height="59" alt="image" src="https://github.com/user-attachments/assets/1217dad2-1712-43b5-9c2b-bc74e2f98742" />
 
-    <img width="737" height="1014" alt="image" src="https://github.com/user-attachments/assets/4f09bf23-2357-4010-8135-6ac969ed1790" />
+    <img width="737" height="1014" alt="image" src="https://github.com/user-attachments/assets/4f09bf23-2357-4010-8135-6ac969ed1790" style="width:20%; max-width:600px; display:block;" alt="image"/>
 
 -   **분석:** TPS 1,573, **Error 0.9%**. V2(142 TPS) ➔ V3(4000+ TPS)로 "요리사"는 "압도적으로" 빨라졌음. **"그런데도"** Error 0.9%와 "250ms 멈춤 로그"가 "가끔" 발생.
 
