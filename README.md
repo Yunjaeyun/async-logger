@@ -1,4 +1,4 @@
-<img width="2167" height="1163" alt="image" src="https://github.com/user-attachments/assets/98a90b99-8900-4988-82fb-3a6a60f9f680" /># 대용량 트래픽 로깅 시스템의 병목 현상 분석 및 튜닝
+# 대용량 트래픽 로깅 시스템의 병목 현상 분석 및 튜닝
 
 (nGrinder VUser 500명, 1분간)
 
@@ -22,7 +22,12 @@
 ### 1️⃣ V1: 동기 처리 (즉사) - 문제 정의
 
 -   **nGrinder (VUser 500):** `[V1의 "즉사" nGrinder 그래프 이미지]`
+  <img width="1592" height="61" alt="image" src="https://github.com/user-attachments/assets/a84ba1df-7dfa-4196-bd07-7102042042a6" />
+  <img width="1595" height="51" alt="image" src="https://github.com/user-attachments/assets/85efdd5d-7881-499f-afc1-01703ff472ae" />
+
 -   **분석:** TPS 24, **Error 80.5%**. "카운터(톰캣 스레드)"가 "느린" DB 작업(save)을 "동기"로 기다리면서, "커넥션 풀"과 "스레드 풀"이 "전부" 고갈되어 INSERT와 무관한 **SELECT API까지 마비**되는 "연쇄 붕괴" 발생.
+<img width="1167" height="563" alt="image" src="https://github.com/user-attachments/assets/f197bcfd-23dc-4aa3-b622-461c7805109c" />
+
 
 <details>
 <summary><b>[V1 딥다이브] "왜" INSERT가 SELECT까지 마비시켰는가? (핫스팟 분석)</b></summary>
