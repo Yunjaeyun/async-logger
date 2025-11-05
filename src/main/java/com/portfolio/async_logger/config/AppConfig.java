@@ -10,8 +10,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Configuration
 public class AppConfig {
 
+//    @Bean
+//    public BlockingQueue<LogDataDto> logQueue(){
+//        return new LinkedBlockingQueue<>(100000);
+//    }
+
     @Bean
-    public BlockingQueue<LogDataDto> logQueue(){
+    public BlockingQueue<String> logQueue(){
         return new LinkedBlockingQueue<>(100000);
     }
 

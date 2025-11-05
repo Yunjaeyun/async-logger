@@ -18,7 +18,7 @@ import java.util.concurrent.BlockingQueue;
  */
 
 @Slf4j
-@Component
+//@Component
 @RequiredArgsConstructor
 public class LogConsumerV3 {
 
