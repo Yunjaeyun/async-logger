@@ -28,7 +28,7 @@
 
 ### 1️⃣ V1: 동기 처리 (즉사) - 문제 정의
 
--   **nGrinder (VUser 500):** `[V1의 "즉사" ]`
+-   nGrinder (VUser 500): `[V1의 "즉사" ]`
 
   <img width="1592" height="61" alt="image" src="https://github.com/user-attachments/assets/a84ba1df-7dfa-4196-bd07-7102042042a6" />
   <img width="1595" height="51" alt="image" src="https://github.com/user-attachments/assets/85efdd5d-7881-499f-afc1-01703ff472ae" />
@@ -36,7 +36,7 @@
 
 
 
--   **분석:** TPS 24, **Error 80.5%**. "카운터(톰캣 스레드)"가 "느린" DB 작업(save)을 "동기"로 기다리면서, "커넥션 풀"과 "스레드 풀"이 "전부" 고갈되어 INSERT와 무관한 **SELECT API까지 마비**되는 "연쇄 붕괴" 발생.
+-   분석: TPS 24, Error 80.5%. "카운터(톰캣 스레드)"가 "느린" DB 작업(save)을 "동기"로 기다리면서, "커넥션 풀"과 "스레드 풀"이 "전부" 고갈되어 INSERT와 무관한 **SELECT API까지 마비**되는 "연쇄 붕괴" 발생.
 <img width="2559" height="1439" alt="v1 병목증거(db스레드풀 고갈)스크린샷 2025-11-04 175637 (2)" src="https://github.com/user-attachments/assets/add55f5b-c084-41be-bbb0-519e44a7e044" style="width:20%; max-width:600px; display:block;" alt="image" />
 
 
@@ -135,13 +135,13 @@ V2(비동기 큐)를 도입해 "서버 즉사(V1)"는 막았지만, "요리사(�
 
     <img width="737" height="1014" alt="image" src="https://github.com/user-attachments/assets/4f09bf23-2357-4010-8135-6ac969ed1790" style="width:20%; max-width:600px; display:block;" alt="image"/>
 
--   **분석:** TPS 1,573, **Error 0.9%**. V2(142 TPS) ➔ V3(4000+ TPS)로 "요리사"는 "압도적으로" 빨라졌음. **"그런데도"** Error 0.9%와 "250ms 멈춤 로그"가 "가끔" 발생.
+-   분석: TPS 1,573, Error 0.0% ~ 0.9%. V2(142 TPS) ➔ V3(4000+ TPS)로 "요리사"는 "압도적으로" 빨라졌음. "그런데도" Error 0.9%와 "250ms 멈춤 로그"가 "가끔" 발생.
 
 
 
-**조치:** V2의 "느린 소비자"를 잡기 위해 Batch 도입.
+조치: V2의 "느린 소비자"를 잡기 위해 Batch 도입.
 
-**결과:** TPS 1573, **Error 0.9%**. "평균 속도"는 빨라졌지만, `183개 / 795ms`, `6개 / 107ms` 같은 **"미스터리한 멈춤"**이 발생.
+결과: TPS 1573, **Error 0.9%**. "평균 속도"는 빨라졌지만, `183개 / 795ms`, `6개 / 107ms` 같은 **"미스터리한 멈춤"**이 발생.
 
 <details>
 <summary><b>[V3 딥다이브] "가짜 보스"에게 속다 (가설 A, B, C의 혼란)</b></summary>
